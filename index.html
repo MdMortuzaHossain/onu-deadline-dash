@@ -10,11 +10,12 @@
 @media(max-width:700px){.wrap{padding:18px 15px}.edition{font-size:8px;letter-spacing:1px}.intro{display:block;padding:25px 0 18px}.intro p{margin-top:14px;max-width:100%}h1{font-size:58px}.below{grid-template-columns:1fr;gap:19px}.info{border-right:0;border-bottom:1px solid #183d3533;padding:0 0 17px}canvas{aspect-ratio:430/476}.hud{padding:13px 12px}.stats{gap:15px}.stat b{font-size:24px}.hud button{font-size:10px;padding:7px}.card{padding:55px 12px 10px;max-width:320px}.card h2{font-size:38px}.ticker span:last-child{display:none}.ticker{font-size:9px}.controls button{flex:1;padding:13px}.brand{font-size:17px}footer{font-size:8px;letter-spacing:0}}
 @media(prefers-reduced-motion:reduce){.primary:hover{transform:none}}
 .mission{display:flex;align-items:center;gap:20px;background:#e6e8cd;padding:16px 20px;margin-top:16px;border:1px solid #183d3525;border-radius:8px}.mission small{display:block;font-size:9px;letter-spacing:1.5px;margin-bottom:5px}.mission b{font-size:12px}.track{flex:1;height:8px;border-radius:9px;background:#183d3520;overflow:hidden}.track i{display:block;width:0;height:100%;background:#ee8050;transition:width .2s}#mission-count{font-weight:800;font-size:12px;white-space:nowrap}.game{touch-action:manipulation}@media(max-width:700px){.mission{gap:10px;padding:13px 10px;flex-wrap:wrap}.mission>div:first-child{flex:1 1 75%}.track{order:3;flex-basis:100%}.card h2{font-size:36px}.card{padding-top:65px}.stats{gap:12px}}
+.wardrobe{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:13px 0 18px}.wardrobe span{font-size:10px;letter-spacing:1px;font-weight:800;margin-right:6px}.wardrobe button{background:transparent;border:1px solid #183d3540;border-radius:30px;padding:8px 14px;font-size:11px;color:#183d35}.wardrobe button[aria-pressed="true"]{background:#183d35;color:#dcf179;border-color:#183d35}@media(max-width:700px){.wardrobe{gap:6px}.wardrobe span{width:100%}.wardrobe button{padding:9px 12px}}
 </style>
 <div class="wrap">
 <header><div class="brand"><span>O.</span>ONU ARCADE</div><div class="edition">CHAOS UPDATE · VOL. 02</div></header>
 <section class="intro"><div><div class="eyebrow"><i class="dot"></i> 3 lives. Big combos. Zero work-life balance.</div><h1>DEADLINE <em>DASH.</em></h1></div><p>Primeasia trained him for textiles.<br>Nobody trained him for Dhaka.<br>Deliver samples. Outsmart the boss. Survive the shift.</p></section>
-<main>
+<main><div class="wardrobe" role="group" aria-label="Choose ONU outfit"><span>ONU’S WARDROBE</span><button id="look-teal" aria-pressed="true">◉ Teal Executive</button><button id="look-midnight" aria-pressed="false">◉ Midnight Runner</button><button id="look-sunset" aria-pressed="false">◉ Sunset Street</button></div>
 <div class="game">
 <div class="hud"><div class="stats"><div class="stat"><small>SCORE</small><b id="distance">0000<span>m</span></b></div><div class="stat"><small>CHA</small><b id="tea">00</b></div><div class="stat"><small>BEST</small><b id="best">0000</b></div></div><div class="tools"><button id="sound" aria-label="Enable sound" aria-pressed="false">Sound off</button><button id="pause" aria-label="Pause game">Ⅱ</button></div></div>
 <canvas id="world" width="1120" height="476" tabindex="0" aria-label="ONU endless runner. Space or up arrow to jump, down arrow to slide, X to dash, P to pause."></canvas>
@@ -29,6 +30,9 @@
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d');
 const $=s=>document.querySelector(s),W=window.innerWidth<700?430:1120,H=476,GROUND=391,PX=W<700?70:180;
 canvas.width=W;canvas.height=H;
+const outfits={teal:{base:'#24586b',light:'#4b8290',sleeve:'#397789',accent:'#dcf179',shirt:'#f5ecd5'},midnight:{base:'#353654',light:'#7776ab',sleeve:'#565783',accent:'#86e6ff',shirt:'#e0e6f2'},sunset:{base:'#b45037',light:'#ed9671',sleeve:'#db7650',accent:'#ffdb7e',shirt:'#fff0d5'}};
+let outfit='teal',visualTime=0;try{const saved=localStorage.getItem('onu-outfit');if(Object.hasOwn(outfits,saved))outfit=saved}catch{}
+function chooseOutfit(name){if(!Object.hasOwn(outfits,name))return;outfit=name;for(const key of Object.keys(outfits))$('#look-'+key).setAttribute('aria-pressed',String(key===name));try{localStorage.setItem('onu-outfit',name)}catch{}}
 let score=0,lives=3,combo=0,maxCombo=0,samples=0,shipments=0,target=5,invincible=0,dashTime=0,dashCooldown=0,magnet=0,boss=false,lastBoss=false,popups=[],shake=0,zoneIndex=0;
 const zones=['UNIVERSITY ROAD','DHAKA TRAFFIC','GARMENT FLOOR','NIGHT SHIPMENT'];
 let mode='ready',elapsed=0,distance=0,tea=0,speed=330,offset=0,spawn=1.8,items=[],particles=[],shield=0,slideTime=0,jumps=0,y=0,vy=0,last=0,best=0,sound=false,audio;
@@ -71,35 +75,37 @@ let tx=W*.545-offset*.4%1450;rect(tx,317,100,49,'#d5b37d');rect(tx-9,302,118,18,
 line(0,209,W,180,'#254d4244',2);for(let i=0;i<5;i++){const x=i*300-offset*.3%300;line(x,190,x,359,'#355a4a',5);line(x-17,189,x+17,189,'#355a4a',3)}rect(0,359,W,32,'#c7bf91');for(let i=-1;i<24;i++)rect(i*53-offset%53,380,29,11,'#375d4d');rect(0,391,W,85,'#294940');rect(0,393,W,3,'#153e34');for(let i=-1;i<12;i++)rect(i*128-offset%128,439,65,4,'#b8b78c');for(let i=0;i<12;i++)rect((i*167-offset*.8%167),413+(i%3)*15,3,2,'#77917b');}
 function runner(){
 if(invincible>0&&dashTime<=0&&Math.floor(elapsed*15)%2===0)return;
-const running=mode==='running',phase=running?elapsed*17:0,swing=Math.sin(phase),bob=running&&y===0?Math.abs(Math.cos(phase))*2:0;
-ctx.save();ctx.translate(PX,GROUND-y-bob);
+const running=mode==='running',phase=running?elapsed*17:visualTime*2,swing=running?Math.sin(phase):(Math.sin(phase)*.15),bob=running&&y===0?Math.abs(Math.cos(phase))*2:Math.sin(visualTime*2)*.7;const look=outfits[outfit];
+ctx.save();ctx.translate(PX,GROUND-y-bob);if(mode==='ready'){const scale=W<700?1.15:1.85;ctx.scale(scale,scale);}if(dashTime>0){ctx.transform(1,0,-.16,1,0,0);}else if(y>0){ctx.rotate(-.07);}
 ctx.fillStyle='#102a3e45';ctx.beginPath();ctx.ellipse(0,y,27,4,0,0,7);ctx.fill();
-if(dashTime>0){for(let i=0;i<5;i++)rect(-100-i*17,-63+i*11,67,3,'#dcf179');}
+if(dashTime>0){for(let i=0;i<5;i++)rect(-100-i*17,-63+i*11,67,3,look.accent);}
 if(magnet>0){ctx.strokeStyle='#8ce6ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-40,54,0,7);ctx.stroke();}
-if(shield>0){ctx.strokeStyle='#dcf179';ctx.lineWidth=2;ctx.shadowColor='#dcf179';ctx.shadowBlur=14;ctx.beginPath();ctx.ellipse(0,-39,42,50,0,0,7);ctx.stroke();ctx.shadowBlur=0;}
+if(shield>0){ctx.strokeStyle=look.accent;ctx.lineWidth=2;ctx.shadowColor=look.accent;ctx.shadowBlur=14;ctx.beginPath();ctx.ellipse(0,-39,42,50,0,0,7);ctx.stroke();ctx.shadowBlur=0;}
 ctx.lineCap='round';ctx.lineJoin='round';
 // Tailored silhouette, articulated limbs, and clean white-soled trainers.
 function limb(points,color,width){ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();}
-function shoe(x,yy,flip=1){ctx.save();ctx.translate(x,yy);ctx.scale(flip,1);ctx.fillStyle='#f5f1df';ctx.beginPath();ctx.roundRect(-7,-7,21,8,3);ctx.fill();rect(-7,-2,23,3,'#e8f69c');rect(-4,-6,8,2,'#5a7f73');ctx.restore();}
+function shoe(x,yy,flip=1){ctx.save();ctx.translate(x,yy);ctx.scale(flip,1);ctx.fillStyle='#f5f1df';ctx.beginPath();ctx.roundRect(-7,-7,21,8,3);ctx.fill();rect(-7,-2,23,3,look.accent);rect(-4,-6,8,2,'#5a7f73');ctx.restore();}
 if(slideTime>0&&y===0){
 ctx.rotate(-.09);limb([[-13,-18],[-30,-9],[-42,-7]],'#182e49',10);shoe(-42,-5,-1);limb([[-10,-17],[7,-8],[24,-7]],'#27466a',10);shoe(25,-5);
-ctx.fillStyle='#1e4d60';ctx.beginPath();ctx.roundRect(-25,-32,48,18,7);ctx.fill();rect(-14,-30,25,4,'#e8efdf');
-ctx.save();ctx.translate(21,43);head();ctx.restore();limb([[1,-25],[20,-17],[31,-22]],'#356b78',7);rect(27,-24,9,5,'#d8a476');
+ctx.fillStyle=look.base;ctx.beginPath();ctx.roundRect(-25,-32,48,18,7);ctx.fill();rect(-14,-30,25,4,'#e8efdf');
+ctx.save();ctx.translate(21,43);head();ctx.restore();limb([[1,-25],[20,-17],[31,-22]],look.sleeve,7);rect(27,-24,9,5,'#d8a476');
 }else{
-const back=swing*17,front=-swing*17;
+const back=y>0?-12:swing*17,front=y>0?15:-swing*17;
+// Silk sample scarf catches the wind during a sprint.
+ctx.fillStyle=look.accent;ctx.beginPath();ctx.moveTo(-5,-59);ctx.quadraticCurveTo(-23,-65,-37,-55+Math.sin(phase)*3);ctx.lineTo(-32,-49+Math.sin(phase)*3);ctx.quadraticCurveTo(-16,-56,-3,-55);ctx.closePath();ctx.fill();
 limb([[-5,-29],[-13+back*.65,-17],[-10+back,-6]],'#182e49',9);shoe(-10+back,-2,back<0?-1:1);
 // Rear arm and a compact crossbody sample bag.
 limb([[-9,-53],[-23,-43-swing*7],[-25+swing*5,-32-swing*6]],'#193e52',8);
 ctx.fillStyle='#b78349';ctx.beginPath();ctx.roundRect(-24,-47,16,22,4);ctx.fill();rect(-23,-42,14,3,'#d7af69');rect(-18,-34,4,3,'#f3d891');
 limb([[5,-29],[13+front*.65,-17],[10+front,-6]],'#294a69',10);shoe(10+front,-2,front<0?-1:1);
 // Teal bomber over a cream T-shirt, gold zipper and an ONU monogram.
-ctx.fillStyle='#24586b';ctx.beginPath();ctx.moveTo(-14,-58);ctx.quadraticCurveTo(0,-64,14,-56);ctx.lineTo(17,-30);ctx.quadraticCurveTo(1,-25,-14,-30);ctx.closePath();ctx.fill();
-ctx.fillStyle='#f5ecd5';ctx.beginPath();ctx.moveTo(-4,-58);ctx.lineTo(6,-58);ctx.lineTo(8,-31);ctx.lineTo(-4,-31);ctx.closePath();ctx.fill();
-limb([[-6,-57],[-9,-45],[-6,-32]],'#387688',3);limb([[8,-57],[12,-44],[10,-31]],'#4b8290',2);rect(-13,-32,29,4,'#163f53');
-line(-13,-55,11,-35,'#c99f5b',2);rect(-10,-51,6,7,'#dcf179');text('O',-7,-46,5,'#234f59','center');
+ctx.fillStyle=look.base;ctx.beginPath();ctx.moveTo(-14,-58);ctx.quadraticCurveTo(0,-64,14,-56);ctx.lineTo(17,-30);ctx.quadraticCurveTo(1,-25,-14,-30);ctx.closePath();ctx.fill();
+ctx.fillStyle=look.shirt;ctx.beginPath();ctx.moveTo(-4,-58);ctx.lineTo(6,-58);ctx.lineTo(8,-31);ctx.lineTo(-4,-31);ctx.closePath();ctx.fill();
+limb([[-6,-57],[-9,-45],[-6,-32]],look.light,3);limb([[8,-57],[12,-44],[10,-31]],look.light,2);rect(-13,-32,29,4,'#163f53');rect(9,-47,5,2,look.accent);line(-9,-36,-3,-36,look.light,1);
+line(-13,-55,11,-35,'#c99f5b',2);rect(-10,-51,6,7,look.accent);text('O',-7,-46,5,'#234f59','center');
 ctx.save();ctx.translate(0,0);head();ctx.restore();
 const elbowY=-43+swing*8,handY=-36+swing*9;
-limb([[12,-54],[25,elbowY],[17-swing*9,handY]],'#397789',8);limb([[20,elbowY+3],[17-swing*9,handY]],'#d7a174',6);
+limb([[12,-54],[25,elbowY],[17-swing*9,handY]],look.sleeve,8);limb([[20,elbowY+3],[17-swing*9,handY]],'#d7a174',6);
 // Smartwatch with an illuminated face.
 rect(15-swing*9,handY-4,7,7,'#132d43');rect(17-swing*9,handY-3,3,4,'#bdecea');
 }
@@ -121,7 +127,8 @@ function obstacle(o){const x=o.x;if(o.type==='sample'){rect(x,o.top,24,24,'#f8cf
 function draw(){ctx.clearRect(0,0,W,H);ctx.save();if(shake>0)ctx.translate(Math.sin(elapsed*90)*shake,0);city();if(zoneIndex%4===3){for(let i=0;i<15;i++)rect((i*89)%W,85+(i*23)%130,2,2,'#fff0c8')}if(boss){rect(0,82,W,38,'#9d4439');text('BOSS RUSH · '+Math.ceil(25-elapsed%25)+'s · DODGE OR DASH!',W/2,106,W<700?12:17,'#ffe6b7','center');rect(4,GROUND-61,40,47,'#66507b');rect(10,GROUND-81,27,24,'#dba779');text('BOSS',24,GROUND-89,10,'#fff','center')}
 for(const o of items)obstacle(o);runner();for(const p of particles)rect(p.x,p.y,5,5,p.color);for(const p of popups){ctx.globalAlpha=Math.min(1,p.life);text(p.t,Math.max(90,Math.min(W-100,p.x)),p.y,W<700?13:19,p.color,'center')}ctx.globalAlpha=1;ctx.restore();if(mode==='running'||mode==='paused'){text('♥'.repeat(lives)+'♡'.repeat(3-lives),20,145,23,'#ffb285');text('x'+(1+Math.min(4,Math.floor(combo/5)))+' · '+combo+' COMBO',W-18,145,14,'#ffe099','right');text(dashCooldown>0?'DASH '+dashCooldown.toFixed(1)+'s':'[X] DASH READY',20,H-20,12,'#dcf179');text(Math.floor(distance)+'m',W-18,H-20,12,'#f4efdf','right');if(magnet>0)text('MAGNET '+magnet.toFixed(1)+'s',W/2,H-20,12,'#8ce6ff','center')}
 if(mode==='ready'){text('COLLECT GOLDEN SAMPLES →',W/2,H-23,12,'#ffe099','center')}}
-function frame(t){const dt=Math.min((t-last)/1000,.033);last=t;if(mode==='running')update(dt);draw();requestAnimationFrame(frame)}
+function frame(t){const dt=Math.min((t-last)/1000,.033);last=t;visualTime+=dt;if(mode==='running')update(dt);draw();requestAnimationFrame(frame)}
+for(const key of Object.keys(outfits))$('#look-'+key).onclick=()=>chooseOutfit(key);chooseOutfit(outfit);
 $('#start').onclick=()=>mode==='paused'?pause():start();$('#jump').onclick=jump;$('#slide').onclick=slide;$('#dash').onclick=dash;$('#pause').onclick=pause;$('#sound').onclick=()=>{sound=!sound;$('#sound').textContent=sound?'Sound on':'Sound off';$('#sound').classList.toggle('sound-on',sound);$('#sound').setAttribute('aria-label',sound?'Mute sound':'Enable sound');$('#sound').setAttribute('aria-pressed',String(sound));if(sound)beep(660)};
 document.addEventListener('keydown',e=>{if(e.target.tagName==='BUTTON'&&(e.code==='Space'||e.code==='Enter'))return;if(['Space','ArrowUp','ArrowDown','KeyP','Escape','KeyX'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='Space'||e.code==='ArrowUp')jump();if(e.code==='ArrowDown')slide();if(e.code==='KeyX')dash();if(e.code==='KeyP'||e.code==='Escape')pause()});canvas.addEventListener('pointerdown',e=>{e.preventDefault();jump()});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='running')pause()});requestAnimationFrame(frame);
 </script>
