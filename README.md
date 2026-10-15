@@ -9,9 +9,13 @@ Open `index.html` in any modern browser. No install, build, backend, or API keys
 - **Space / ↑ / tap the game / Jump button:** jump. Press again for a double jump.
 - **↓ / Slide button:** slide for 0.78 seconds. In the air, fast-fall.
 - **P / Esc / pause button:** pause or resume.
-- **Tea:** collect for 10 bonus meters and a five-second shield.
-- Jump over fabric rolls and cones; slide under urgent emails.
-- Difficulty gradually increases. Best distance is stored only in your browser.
+- **X / Dash button:** smash through obstacles for 0.7 seconds. Six-second cooldown.
+- **Tea:** five-second shield. **Magnet:** attracts pickups for seven seconds.
+- Three lives, with temporary invulnerability after damage. Complete shipments to recover one life and earn 500 points.
+- Collect golden samples to fill the shipment meter. Build combos for up to a 5x pickup/dodge multiplier.
+- Seven-second boss rush every 25 seconds; survive for a 150-point bonus. Four rotating scenery palettes.
+- Jump over rickshaws, fabric rolls and cones; slide under urgent emails.
+- Difficulty gradually increases. Best score is stored only in your browser.
 - Sound is optional and off by default. Switching tabs automatically pauses.
 
 ## Host
