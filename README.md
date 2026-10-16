@@ -1,31 +1,27 @@
-# ONU: Deadline Dash
+# অনু — ডেডলাইনের দৌড়
 
-A friendly, fictional endless runner for ONU, a textile engineer who studied at Primeasia University. Dhaka traffic, fabric rolls, urgent buyer emails, and the life-saving power of cha.
+অনুর জন্য বন্ধুর বানানো মজার বাংলা গেম। ঢাকার জ্যাম, গার্মেন্টসের স্যাম্পল, বসের তাড়া আর এক কাপ চা নিয়ে অবিরাম দৌড়!
 
-## Play
+[খেলা শুরু করো](https://mdmortuzahossain.github.io/onu-deadline-dash/)
 
-Open `index.html` in any modern browser. No install, build, backend, or API keys required. Works offline after download (optional Google Fonts fall back to system fonts).
+## কীভাবে খেলবে
 
-- **Space / ↑ / tap the game / Jump button:** jump. Press again for a double jump.
-- **↓ / Slide button:** slide for 0.78 seconds. In the air, fast-fall.
-- **P / Esc / pause button:** pause or resume.
-- **X / Dash button:** smash through obstacles for 0.7 seconds. Six-second cooldown.
-- **Tea:** five-second shield. **Magnet:** attracts pickups for seven seconds.
-- Three lives, with temporary invulnerability after damage. Complete shipments to recover one life and earn 500 points.
-- Collect golden samples to fill the shipment meter. Build combos for up to a 5x pickup/dodge multiplier.
-- Seven-second boss rush every 25 seconds; survive for a 150-point bonus. Four rotating scenery palettes.
-- Jump over rickshaws, fabric rolls and cones; slide under urgent emails.
-- Difficulty gradually increases. Best score is stored only in your browser.
-- Sound is optional and off by default. Switching tabs automatically pauses.
+- **স্পেস / ↑ / পর্দায় চাপ / লাফ বোতাম:** লাফ। আবার চাপলে দ্বিতীয় লাফ।
+- **↓ / স্লাইড:** ইমেইলের নিচ দিয়ে যাও। আকাশে থাকলে দ্রুত নিচে নামো।
+- **X / ঝড়দৌড়:** বাধা ভেঙে এগিয়ে যাও। আবার ব্যবহার করতে ছয় সেকেন্ড অপেক্ষা।
+- **P / Esc / বিরতি বোতাম:** থামাও বা আবার শুরু করো।
+- **চা:** পাঁচ সেকেন্ডের ঢাল। **চুম্বক:** সাত সেকেন্ড ধরে আশপাশের স্যাম্পল টানে।
+- শুরুতে তিনটা জীবন। চালান শেষ করলে ৫০০ পয়েন্ট ও একটি জীবন ফেরত পাবে।
+- সোনালি স্যাম্পল কুড়িয়ে চালান পূরণ করো। কম্বো বাড়লে সর্বোচ্চ পাঁচ গুণ পয়েন্ট।
+- প্রতি ২৫ সেকেন্ডে সাত সেকেন্ডের বসের তাড়া। বেঁচে গেলে ১৫০ পয়েন্ট।
+- পোশাক ও সেরা পয়েন্ট শুধু তোমার ব্রাউজারে থাকে। অন্য ট্যাবে গেলে গেম থামে।
 
-## Host
+## চরিত্র
 
-Upload `index.html` to any static host. For GitHub Pages, select **Settings → Pages → Deploy from a branch → main / (root)** where available for your repository plan and visibility.
+বন্ধুর দেওয়া অনুর ছবি দেখে চুল, পূর্ণ দাড়ি ও সোনালি ফ্রেমের বাদামি সানগ্লাসসহ কার্টুন আঁকা হয়েছে। মূল ছবিটি গেমে বা এই রিপোজিটরিতে আপলোড করা হয়নি। তিনটি পোশাক বেছে নেওয়া যায়। সব সংলাপ বন্ধুত্বের খুনসুটি; কোনো অফিসের সত্য ঘটনার দাবি নয়।
 
-## Development
+## নিজের কম্পিউটারে চালাও
 
-Everything lives in `index.html`: responsive layout, Canvas artwork, delta-time physics, collision detection, procedural obstacle generation, optional Web Audio, keyboard and touch controls. All art is drawn in code; no third-party image assets.
+`index.html` ব্রাউজারে খুললেই খেলা যাবে। কিছু ইনস্টল করতে হবে না। চাইলে `node server.cjs` চালিয়ে http://localhost:4173 খোলো। গুগল ফন্ট না এলে কম্পিউটারের বাংলা ফন্ট ব্যবহার হবে।
 
-For a local HTTP preview, run `node server.cjs`, then visit http://localhost:4173.
-
-This is affectionate fictional comedy, not a factual account of any real workplace or university. ONU's character is an invented cartoon, not a likeness.
+সব আঁকা ও অ্যানিমেশন ক্যানভাসে কোড দিয়ে তৈরি। কোনো ব্যক্তিগত ছবি বা বাইরের ছবি ফাইলের প্রয়োজন নেই।
