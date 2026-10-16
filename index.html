@@ -100,30 +100,55 @@ ctx.lineCap='round';ctx.lineJoin='round';
 // Tailored silhouette, articulated limbs, and clean white-soled trainers.
 function limb(points,color,width){ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();}
 function shoe(x,yy,flip=1){ctx.save();ctx.translate(x,yy);ctx.scale(flip,1);ctx.fillStyle='#f5f1df';ctx.beginPath();ctx.roundRect(-7,-7,21,8,3);ctx.fill();rect(-7,-2,23,3,look.accent);rect(-4,-6,8,2,'#5a7f73');ctx.restore();}
-if(slideTime>0&&y===0){
-ctx.rotate(-.09);limb([[-13,-18],[-30,-9],[-42,-7]],'#182e49',10);shoe(-42,-5,-1);limb([[-10,-17],[7,-8],[24,-7]],'#27466a',10);shoe(25,-5);
-ctx.fillStyle=look.base;ctx.beginPath();ctx.roundRect(-25,-32,48,18,7);ctx.fill();rect(-14,-30,25,4,'#e8efdf');
-ctx.save();ctx.translate(21,43);head();ctx.restore();limb([[1,-25],[20,-17],[31,-22]],look.sleeve,7);rect(27,-24,9,5,'#d8a476');
-}else{
-const back=y>0?-12:swing*17,front=y>0?15:-swing*17;
-// Silk sample scarf catches the wind during a sprint.
-ctx.fillStyle=look.accent;ctx.beginPath();ctx.moveTo(-5,-59);ctx.quadraticCurveTo(-23,-65,-37,-55+Math.sin(phase)*3);ctx.lineTo(-32,-49+Math.sin(phase)*3);ctx.quadraticCurveTo(-16,-56,-3,-55);ctx.closePath();ctx.fill();
-limb([[-5,-29],[-13+back*.65,-17],[-10+back,-6]],'#182e49',9);shoe(-10+back,-2,back<0?-1:1);
-// Rear arm and a compact crossbody sample bag.
-limb([[-9,-53],[-23,-43-swing*7],[-25+swing*5,-32-swing*6]],'#193e52',8);
-ctx.fillStyle='#b78349';ctx.beginPath();ctx.roundRect(-24,-47,16,22,4);ctx.fill();rect(-23,-42,14,3,'#d7af69');rect(-18,-34,4,3,'#f3d891');
-limb([[5,-29],[13+front*.65,-17],[10+front,-6]],'#294a69',10);shoe(10+front,-2,front<0?-1:1);
-// Teal bomber over a cream T-shirt, gold zipper and an ONU monogram.
-ctx.fillStyle=look.base;ctx.beginPath();ctx.moveTo(-14,-58);ctx.quadraticCurveTo(0,-64,14,-56);ctx.lineTo(17,-30);ctx.quadraticCurveTo(1,-25,-14,-30);ctx.closePath();ctx.fill();
-ctx.fillStyle=look.shirt;ctx.beginPath();ctx.moveTo(-4,-58);ctx.lineTo(6,-58);ctx.lineTo(8,-31);ctx.lineTo(-4,-31);ctx.closePath();ctx.fill();
-limb([[-6,-57],[-9,-45],[-6,-32]],look.light,3);limb([[8,-57],[12,-44],[10,-31]],look.light,2);rect(-13,-32,29,4,'#163f53');rect(9,-47,5,2,look.accent);line(-9,-36,-3,-36,look.light,1);
-line(-13,-55,11,-35,'#c99f5b',2);rect(-10,-51,6,7,look.accent);text('অ',-7,-46,5,'#234f59','center');
-ctx.save();ctx.translate(0,0);head();ctx.restore();
-const elbowY=-43+swing*8,handY=-36+swing*9;
-limb([[12,-54],[25,elbowY],[17-swing*9,handY]],look.sleeve,8);limb([[20,elbowY+3],[17-swing*9,handY]],'#d7a174',6);
-// Smartwatch with an illuminated face.
-rect(15-swing*9,handY-4,7,7,'#132d43');rect(17-swing*9,handY-3,3,4,'#bdecea');
+
+// Side-profile office runner with longer trousers and a relaxed, forward stride.
+function leg(hip,foot,color){
+ const dx=foot[0]-hip[0],dy=foot[1]-hip[1],d=Math.hypot(dx,dy),bend=Math.sqrt(Math.max(0,25*25-d*d/4));
+ const knee=[(hip[0]+foot[0])/2+dy/d*bend,(hip[1]+foot[1])/2-dx/d*bend];
+ limb([hip,knee],color,10);limb([knee,foot],color,8);
+ line(knee[0]-2,knee[1],foot[0]-2,foot[1]-3,'#ffffff18',1.5);
+ shoe(foot[0]+3,foot[1]+3);
 }
+function portrait(x,yy,angle=0){ctx.save();ctx.translate(x,yy);ctx.rotate(angle);ctx.scale(.72,.72);head();ctx.restore();}
+function shirt(points){ctx.fillStyle=look.base;ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.closePath();ctx.fill();}
+if(slideTime>0&&y===0){
+ // Low runner's crouch: one leg extended, the other folded under the hips.
+ leg([-9,-23],[-35,-5],'#26384e');leg([-3,-23],[23,-5],'#3b5067');
+ shirt([[-16,-36],[12,-39],[20,-31],[5,-23],[-16,-24],[-22,-30]]);
+ limb([[-13,-43],[-25,-32],[-18,-24]],look.sleeve,8);
+ portrait(17,12,.13);
+ limb([[7,-43],[23,-32]],look.light,8);limb([[23,-32],[35,-37]],'#c58c69',6);
+}else{
+ const gait=elapsed*12.5,active=running&&y===0;
+ const foot=(offset)=>{const t=gait+offset;return active?[Math.sin(t)*23,-4-Math.max(0,Math.cos(t))*17]:y>0?[offset?17:-18,offset?-18:-10]:[offset?11:-10,-4]};
+ const hip=[-5,-43],lean=running?7:1;
+ leg(hip,foot(Math.PI),'#24364b');
+ // Far arm swings opposite the front leg, with a consistently bent elbow.
+ const arm=active?Math.sin(gait)*.65:y>0?-.6:.1;
+ function armDraw(side,near){
+  const shoulder=[lean+(near?4:-7),-73],angle=side*arm;
+  const elbow=[shoulder[0]+Math.sin(angle)*19-4,shoulder[1]+Math.cos(angle)*19];
+  const wrist=[elbow[0]+Math.cos(angle)*17,elbow[1]-Math.sin(angle)*17-8];
+  limb([shoulder,elbow],near?look.light:look.sleeve,8);
+  limb([elbow,wrist],'#c58c69',6);
+  ctx.fillStyle='#cc9673';ctx.beginPath();ctx.ellipse(wrist[0],wrist[1],4,3,-angle,0,7);ctx.fill();
+  if(near)line(wrist[0]-5,wrist[1]-3,wrist[0]-4,wrist[1]+3,'#172c40',3);
+ }
+ armDraw(-1,false);
+ leg([0,-43],foot(0),'#3b5067');
+ // Rolled-sleeve button-down, untucked hem, chest pocket and ID lanyard.
+ shirt([[lean-13,-77],[lean+10,-77],[lean+12,-64],[8,-43],[-13,-43],[-12,-59]]);
+ limb([[lean-9,-73],[-9,-48]],look.light,2);
+ line(lean+1,-74,1,-46,look.light,1.2);
+ for(let k=0;k<3;k++){ctx.fillStyle=look.shirt;ctx.beginPath();ctx.arc(lean-k*2,-66+k*7,1,0,7);ctx.fill();}
+ rect(lean+3,-68,6,6,look.sleeve);line(lean+3,-68,lean+9,-68,look.light,1);
+ line(lean-5,-76,lean-2,-59,'#d8d4be',1);line(lean+4,-76,lean-2,-59,'#d8d4be',1);
+ rect(lean-5,-60,7,9,'#f1e9d5');rect(lean-4,-58,5,3,look.accent);
+ line(-12,-43,8,-43,'#172c40',3);rect(-2,-45,4,3,'#bba475');
+ portrait(lean,-35,active?Math.sin(gait)*.015:0);
+ armDraw(1,true);
+}
+
 function head(){
 if(photoHead){
 // Fit the original portrait into the jacket: trim the long photo neck,
